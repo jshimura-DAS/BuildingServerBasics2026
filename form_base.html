@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>うるう年判定（POST）</title>
+</head>
+<body>
+    <h1>うるう年判定ツール（POST例）</h1>
+    <form id="leapForm">
+        <label for="year">年:</label>
+        <input type="number" id="year" name="year" placeholder="例: 2024" required>
+         <label for="month">月:</label>
+        <input type="number" id="month" name="month" min="1" max="12" placeholder="例: 2" required>
+         <label for="day">日:</label>
+        <input type="number" id="day" name="day" min="1" max="31" placeholder="例: 29" required>
+         <button type="submit">判定する</button>
+        <br />
+        <label for="result">結果:</label><br />
+        <textarea id="result" rows="4" cols="40" readonly></textarea>
+    </form>
+    <script>
+        (function(){
+            const form = document.getElementById('leapForm');
+            const resultArea = document.getElementById('result');
+
+            function isLeapYear(y){
+                if (y % 4 !== 0) return false;
+                if (y % 100 !== 0) return true;
+                return (y % 400 === 0);
+            }
+
+            form.addEventListener('submit', function(e){
+                e.preventDefault();
+                const y = parseInt(document.getElementById('year').value, 10);
+                const m = parseInt(document.getElementById('month').value, 10);
+                const d = parseInt(document.getElementById('day').value, 10);
+
+                if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)){
+                    resultArea.value = '年・月・日を正しく入力してください。';
+                    return;
+                }
+
+                const leap = isLeapYear(y);
+                let msg = y + '年は' + (leap ? '閏年' : '閏年ではありません') + '。\n';
+
+                // 日付の簡易チェック（特に2月29日の扱い）
+                const daysInMonth = [31, (leap?29:28), 31,30,31,30,31,31,30,31,30,31];
+                if (m < 1 || m > 12){
+                    msg += '月の値が不正です。1〜12の範囲で入力してください。';
+                } else if (d < 1 || d > daysInMonth[m-1]){
+                    msg += m + '月に' + d + '日は存在しません。';
+                } else {
+                    msg += '入力された日付: ' + y + '年' + m + '月' + d + '日 は有効です。';
+                }
+
+                resultArea.value = msg;
+            });
+        })();
+    </script>
+</body>
+</html>
