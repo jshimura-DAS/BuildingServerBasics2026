@@ -330,6 +330,39 @@ if ($file) {
 **メリット**: より柔軟な制御が可能
 **デメリット**: コードが長い
 
+**実装例（RegistUser.php での使用）**:
+```php
+<?php
+// ファイルを開く（追記モード）
+$csvFile = __DIR__ . '/users.csv';
+$file = fopen($csvFile, 'a');
+
+if ($file) {
+	// ヘッダー行を確認（ファイルが空の場合）
+	$fileSize = filesize($csvFile);
+	if ($fileSize === 0) {
+		fwrite($file, "名前,生年月日,登録日時\n");
+	}
+
+	// CSVデータを書き込む
+	$timestamp = date('Y-m-d H:i:s');
+	$csvLine = $name . ',' . $birthDate . ',' . $timestamp . "\n";
+	$bytesWritten = fwrite($file, $csvLine);
+
+	// ファイルを閉じる
+	fclose($file);
+
+	if ($bytesWritten) {
+		echo "登録に成功しました";
+	} else {
+		echo "書き込みに失敗しました";
+	}
+} else {
+	echo "ファイルを開くことができませんでした";
+}
+?>
+```
+
 ---
 
 #### 3. `file_get_contents()` - ファイル全体を読み込む
@@ -337,6 +370,31 @@ if ($file) {
 ```php
 // ファイル全体を文字列として読み込む
 $content = file_get_contents($filepath);
+```
+
+**パラメータ**:
+- `$filepath`: ファイルパス
+
+**戻り値**: ファイルの内容（失敗時は false）
+
+**メリット**: シンプルでコードが少ない
+**デメリット**: 大容量ファイルはメモリを圧迫する可能性
+
+**実装例（CSV全体を読み込んで表示）**:
+```php
+<?php
+$csvFile = __DIR__ . '/users.csv';
+
+// ファイル全体を読み込む
+$content = file_get_contents($csvFile);
+
+if ($content !== false) {
+	// ファイル内容を表示
+	echo "<pre>" . htmlspecialchars($content) . "</pre>";
+} else {
+	echo "ファイルを読み込むことができませんでした";
+}
+?>
 ```
 
 ---
@@ -349,6 +407,55 @@ $lines = file($filepath);
 foreach ($lines as $line) {
 	echo trim($line) . "<br>";
 }
+```
+
+**パラメータ**:
+- `$filepath`: ファイルパス
+- `$flags`: オプション（FILE_IGNORE_NEW_LINES で改行を除去、FILE_SKIP_EMPTY_LINES で空行を除去）
+
+**戻り値**: ファイルの各行を要素とする配列
+
+**メリット**: 行ごとに処理できる、メモリ効率が良い
+**デメリット**: 各行に改行文字が含まれている
+
+**実装例（CSV を行ごとに表として表示）**:
+```php
+<?php
+$csvFile = __DIR__ . '/users.csv';
+
+// ファイルを行ごとに読み込む
+$lines = file($csvFile, FILE_SKIP_EMPTY_LINES);
+
+if ($lines) {
+	echo "<table border='1'>";
+	echo "<thead>";
+	echo "<tr>";
+
+	// ヘッダー行を処理
+	$header = str_getcsv(trim($lines[0]));
+	foreach ($header as $col) {
+		echo "<th>" . htmlspecialchars($col) . "</th>";
+	}
+	echo "</tr></thead>";
+
+	echo "<tbody>";
+
+	// データ行を処理
+	for ($i = 1; $i < count($lines); $i++) {
+		$data = str_getcsv(trim($lines[$i]));
+		echo "<tr>";
+		foreach ($data as $value) {
+			echo "<td>" . htmlspecialchars($value) . "</td>";
+		}
+		echo "</tr>";
+	}
+
+	echo "</tbody>";
+	echo "</table>";
+} else {
+	echo "ファイルが見つかりません";
+}
+?>
 ```
 
 ---
@@ -366,6 +473,68 @@ checkdate(2, 29, 2024);  // true
 checkdate(2, 29, 2023);  // false
 ```
 
+**パラメータ**:
+- `$month`: 月（1-12）
+- `$day`: 日（1-31、月によって異なる）
+- `$year`: 年（1-32767）
+
+**戻り値**: 有効な日付なら true、無効なら false
+
+**メリット**: うるう年を自動で判定、複雑な計算は不要
+**デメリット**: 月日年の順序を間違えやすい
+
+**実装例（生年月日の完全な検証）**:
+```php
+<?php
+/**
+ * 生年月日を検証する関数
+ * @param string $birthDate 生年月日 (YYYY-MM-DD形式)
+ * @return array ['valid' => bool, 'message' => string]
+ */
+function validateBirthDate($birthDate) {
+	// 日付形式のチェック
+	if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthDate)) {
+		return ['valid' => false, 'message' => '日付形式が不正です（YYYY-MM-DD）'];
+	}
+
+	// 日付を分割
+	$parts = explode('-', $birthDate);
+	$year = (int)$parts[0];
+	$month = (int)$parts[1];
+	$day = (int)$parts[2];
+
+	// checkdate()で妥当性をチェック
+	if (!checkdate($month, $day, $year)) {
+		return ['valid' => false, 'message' => '存在しない日付です'];
+	}
+
+	// 生年月日が未来日でないかチェック
+	$birthTimestamp = strtotime($birthDate);
+	$today = strtotime(date('Y-m-d'));
+
+	if ($birthTimestamp > $today) {
+		return ['valid' => false, 'message' => '生年月日は今日より前の日付を入力してください'];
+	}
+
+	// 年齢が妥当か（120歳以下）
+	$age = date('Y') - $year;
+	if ($age > 120) {
+		return ['valid' => false, 'message' => '生年月日が古すぎます'];
+	}
+
+	return ['valid' => true, 'message' => '有効な生年月日です', 'age' => $age];
+}
+
+// 使用例
+$result = validateBirthDate('1990-05-15');
+if ($result['valid']) {
+	echo "検証成功: " . $result['message'] . " (年齢: " . $result['age'] . "歳)";
+} else {
+	echo "検証失敗: " . $result['message'];
+}
+?>
+```
+
 ---
 
 ### CSV ファイルの形式
@@ -379,13 +548,106 @@ RegistUser.php で保存されるCSVファイル（users.csv）の形式：
 佐藤次郎,1995-03-10,2024-01-20 14:40:10
 ```
 
-**読み込み例**:
+#### CSV の読み込み方法
+
+**基本的な読み込み例**:
 ```php
 $lines = file(__DIR__ . '/users.csv');
 foreach ($lines as $line) {
 	$data = str_getcsv($line);  // CSV を配列に分割
 	echo "名前: " . $data[0] . ", 生年月日: " . $data[1] . "<br>";
 }
+```
+
+**ヘッダー行をスキップして処理**:
+```php
+<?php
+$csvFile = __DIR__ . '/users.csv';
+$lines = file($csvFile, FILE_SKIP_EMPTY_LINES);
+
+// ヘッダー行の列名を取得
+$header = str_getcsv(trim($lines[0]));
+
+// データを処理
+$users = [];
+for ($i = 1; $i < count($lines); $i++) {
+	$data = str_getcsv(trim($lines[$i]));
+
+	// 連想配列として格納
+	$user = array_combine($header, $data);
+	$users[] = $user;
+}
+
+// 結果を表示
+foreach ($users as $user) {
+	echo "名前: " . $user['名前'] . "\n";
+	echo "生年月日: " . $user['生年月日'] . "\n";
+	echo "登録日時: " . $user['登録日時'] . "\n";
+	echo "---\n";
+}
+?>
+```
+
+**別ファイルで CSV データを表示**:
+```php
+<?php
+// users_list.php - 登録ユーザーの一覧表示
+header('Content-Type: text/html; charset=utf-8');
+
+$csvFile = dirname(__DIR__) . '/data/users.csv';
+
+echo "<!DOCTYPE html>";
+echo "<html lang='ja'>";
+echo "<head>";
+echo "<meta charset='UTF-8'>";
+echo "<title>登録ユーザー一覧</title>";
+echo "<style>";
+echo "table { border-collapse: collapse; width: 100%; }";
+echo "th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }";
+echo "th { background-color: #f2f2f2; }";
+echo "</style>";
+echo "</head>";
+echo "<body>";
+echo "<h1>登録ユーザー一覧</h1>";
+
+if (file_exists($csvFile)) {
+	$lines = file($csvFile, FILE_SKIP_EMPTY_LINES);
+
+	if (count($lines) > 1) {
+		echo "<table>";
+
+		// ヘッダー行
+		$header = str_getcsv(trim($lines[0]));
+		echo "<thead><tr>";
+		foreach ($header as $col) {
+			echo "<th>" . htmlspecialchars($col) . "</th>";
+		}
+		echo "</tr></thead>";
+
+		// データ行
+		echo "<tbody>";
+		for ($i = 1; $i < count($lines); $i++) {
+			$data = str_getcsv(trim($lines[$i]));
+			echo "<tr>";
+			foreach ($data as $value) {
+				echo "<td>" . htmlspecialchars($value) . "</td>";
+			}
+			echo "</tr>";
+		}
+		echo "</tbody>";
+
+		echo "</table>";
+		echo "<p>合計: " . (count($lines) - 1) . "名</p>";
+	} else {
+		echo "<p>登録ユーザーがいません</p>";
+	}
+} else {
+	echo "<p>ファイルが見つかりません</p>";
+}
+
+echo "</body>";
+echo "</html>";
+?>
 ```
 
 ---
