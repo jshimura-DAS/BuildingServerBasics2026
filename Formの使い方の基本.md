@@ -250,7 +250,7 @@ php -S 192.168.1.100:8080 -t /path/to/webroot
 
   #### POST を使う場合
 
-  **フォーム（HTML）**:
+  **フォーム(form_test.html）**:
   ```html
   <!DOCTYPE html>
   <html lang="ja">
