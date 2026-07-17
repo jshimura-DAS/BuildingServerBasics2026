@@ -146,6 +146,8 @@ if ($ok === false) {
 	echo '<tr><td>登録日時</td><td>' . $timestamp . '</td></tr>';
 	echo '</table>';
 }
+
+?>
 ```
 
 ※このサンプルは説明を優先しており、表示部分にXSS対策を入れていません。
