@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!-- saved from url=(0124)file:///D:/Shimura/%E3%82%B5%E3%83%BC%E3%83%90%E6%A7%8B%E7%AF%89/%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E7%99%BB%E9%8C%B2.html -->
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>ユーザー登録（実験用）</title>
+</head>
+<body>
+    <h1>ユーザー登録（実験用）</h1>
+    <h2>通常</h2>
+    <form action="http://172.25.91.236/RegistUser.php" method="POST">
+        <div>
+            <label for="name">名前:</label>
+            <input type="text" id="name" name="name" required="">
+        </div>
+
+        <div>
+            <label for="birthDate">生年月日:</label>
+            <input type="date" id="birthDate" name="birthDate" required="">
+        </div>
+
+        <button type="submit">登録</button>
+    </form>
+    <h2>日付を可変</h2>
+    <form action="http://172.25.91.236/RegistUser.php" method="POST">
+        <div>
+            <label for="name">名前:</label>
+            <input type="text" id="name" name="name">
+        </div>
+
+        <div>
+            <label for="birthDate">生年月日:</label>
+            <input type="text" id="birthDate" name="birthDate">
+        </div>
+
+        <button type="submit">登録</button>
+    </form>
+
+
+    <h2>GETでエラー</h2>
+    <form action="http://172.25.91.236/RegistUser.php" method="GET">
+        <div>
+            <label for="name">名前:</label>
+            <input type="text" id="name" name="name" required="">
+        </div>
+
+        <div>
+            <label for="birthDate">生年月日:</label>
+            <input type="date" id="birthDate" name="birthDate" required="">
+        </div>
+
+        <button type="submit">登録</button>
+    </form>
+
+</body>
+</html>
