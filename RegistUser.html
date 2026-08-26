@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー登録</title>
+</head>
+<body>
+    <h1>しむら組　ユーザー登録</h1>
+    <form action="RegistUser.php" method="POST">
+        <div>
+            <label for="name">名前:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div>
+            <label for="birthDate">生年月日:</label>
+            <input type="date" id="birthDate" name="birthDate" required>
+        </div>
+
+        <button type="submit">登録</button>
+    </form>
+</body>
+</html>
