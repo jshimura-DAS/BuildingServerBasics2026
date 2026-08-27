@@ -1,5 +1,10 @@
-﻿<?php
+<?php
 header('Content-Type: text/html; charset=utf-8');
+
+// エラーレポート設定（本番環境では display_errors = Off に設定）
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$name = $_POST['name'] ?? '';

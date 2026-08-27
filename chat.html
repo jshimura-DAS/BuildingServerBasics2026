@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>チャット</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-messages {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            /* height: 800px; */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .message-name {
+            color: #4CAF50;
+        }
+
+        .message-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .message-content {
+            color: #555;
+            word-wrap: break-word;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-container button,
+        .button-container a {
+            flex: 1;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #0b7dda;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+    </style>
+    <script>
+        // クライアント側の検証
+        function validateForm() {
+            const name = document.getElementById('name').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+
+            // 名前が空でないか確認
+            if (!name) {
+                alert('名前を入力してください');
+                return false;
+            }
+
+            // 名前が2文字以上か確認
+            if (name.length < 2) {
+                alert('名前は2文字以上で入力してください');
+                return false;
+            }
+
+            // コメントが空でないか確認
+            if (!comment) {
+                alert('コメントを入力してください');
+                return false;
+            }
+
+            // コメントが1000文字以下か確認
+            if (comment.length > 1000) {
+                alert('コメントは1000文字以下で入力してください');
+                return false;
+            }
+
+            return true;
+        }
+
+        // ページ読み込み時にメッセージを自動更新
+        function autoRefresh() {
+            const chatMessages = document.getElementById('chatMessages');
+            fetch('chat.php?action=get')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+                    if (!response.ok) {
+                        console.error('HTTP Error status:', response.status);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    console.log('Response HTML length:', html ? html.length : 0);
+                    console.log('First 200 chars:', html ? html.substring(0, 200) : 'empty');
+
+                    if (!html || html.trim().length === 0) {
+                        chatMessages.innerHTML = "<div class='no-messages'>メッセージを読み込めませんでした（空のレスポンス）</div>";
+                    } else {
+                        chatMessages.innerHTML = html;
+                        // 最新のメッセージまでスクロール
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                })
+                .catch(error => {
+                    console.error('フェッチエラー:', error);
+                    console.error('Error stack:', error.stack);
+                    chatMessages.innerHTML = "<div class='no-messages'>メッセージの読み込みに失敗しました: " + error.message + "</div>";
+                });
+        }
+
+        // ページ読み込み時に初回実行
+        window.addEventListener('DOMContentLoaded', function() {
+            autoRefresh();
+            // 5秒ごとに自動更新
+            setInterval(autoRefresh, 5000);
+        });
+    </script>
+</head>
+<body>
+    <h1>チャット</h1>
+    <div class="container">
+
+        <form action="http://172.25.21.148/chat.php" method="POST" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="name">名前:</label>
+                <input type="text" id="name" name="name" placeholder="山田太郎" maxlength="50">
+                <p class="error">※ 2文字以上で入力してください</p>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">コメント:</label>
+                <textarea id="comment" name="comment" placeholder="ここにメッセージを入力してください" maxlength="1000"></textarea>
+                <p class="error">※ 1000文字以下で入力してください</p>
+            </div>
+
+            <div class="button-container">
+                <button type="submit">送信</button>
+                <a href="RegistUser2.html">戻る</a>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="no-messages">メッセージを読み込み中...</div>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>
