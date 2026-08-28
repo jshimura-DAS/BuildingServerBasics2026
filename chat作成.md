@@ -189,8 +189,8 @@ php -v
 
 | ファイル | URL |
 |----------|-----|
-| チャット | http://172.25.21.148/chat.html |
-| ユーザー登録 | http://172.25.21.148/RegistUser2.html |
+| チャット | http://localhost/chat.html |
+| ユーザー登録 | http://localhost/RegistUser2.html |
 
 ### 7. データ保存先
 

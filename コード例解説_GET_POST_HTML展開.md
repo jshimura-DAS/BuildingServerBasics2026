@@ -70,7 +70,7 @@ if ($action === 'get') {
 【ブラウザからのリクエスト】
 
 1. ページをロード
-   URL: http://172.25.21.148/chat.html
+   URL: http://localhost/chat.html
    ↓
    REQUEST_METHOD = GET （ページロードのため）
    GET パラメータは없음

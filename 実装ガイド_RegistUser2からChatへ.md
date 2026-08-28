@@ -169,7 +169,7 @@ if ($action === 'get') {
 #### POST リクエスト（フォーム送信）
 ```html
 <!-- HTML フォーム -->
-<form action="http://172.25.21.148/chat.php" method="POST">
+<form action="http://localhost/chat.php" method="POST">
 	<input type="text" name="name" placeholder="名前">
 	<textarea name="comment" placeholder="コメント"></textarea>
 	<button type="submit">送信</button>
@@ -253,7 +253,7 @@ if ($action === 'get') {
 #### ステップ1：HTML フォームから送信
 ```html
 <!-- chat.html より -->
-<form action="http://172.25.21.148/chat.php" method="POST" onsubmit="return validateForm()">
+<form action="http://localhost/chat.php" method="POST" onsubmit="return validateForm()">
 	<input type="text" id="name" name="name" placeholder="山田太郎">
 	<textarea id="comment" name="comment" placeholder="メッセージ"></textarea>
 	<button type="submit">送信</button>
