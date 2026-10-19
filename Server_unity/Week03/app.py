@@ -6,7 +6,17 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-	return "Hello World\\n"
+	return "Hello World"
+
+
+@app.route("/about")
+def about():
+	return "これはFlask学習用のサーバーです"
+
+
+@app.route("/hello/<name>")
+def hello_name(name):
+	return f"Hello, {name}!"
 
 
 if __name__ == "__main__":
