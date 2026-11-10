@@ -1,0 +1,42 @@
+<!-- test_scores.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スコア登録APIテスト</title>
+</head>
+<body>
+    <h1>スコア登録APIテスト</h1>
+
+    <label>APIのURL: <input id="url" type="text" size="40" value="http://127.0.0.1:5000/api/scores"></label><br>
+    <label>name: <input id="name" type="text" value="PlayerA"></label><br>
+    <label>score: <input id="score" type="number" value="1250"></label><br>
+    <button id="submit">送信</button>
+
+    <h2>結果</h2>
+    <pre id="result"></pre>
+
+    <script>
+    document.getElementById("submit").addEventListener("click", async () => {
+      const url = document.getElementById("url").value;
+      const name = document.getElementById("name").value;
+      const score = Number(document.getElementById("score").value);
+      const result = document.getElementById("result");
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, score: score }),
+        });
+
+        const body = await response.json();
+        result.textContent =
+          `status: ${response.status}\n` + JSON.stringify(body, null, 2);
+      } catch (error) {
+        result.textContent = "通信に失敗しました: " + error;
+      }
+    });
+    </script>
+</body>
+</html>
